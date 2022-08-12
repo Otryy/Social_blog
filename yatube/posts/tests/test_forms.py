@@ -81,8 +81,8 @@ class ContextImageTest(TestCase):
         }
         response = self.authorized_client.post(reverse(
             'posts:post_edit', kwargs={'post_id': self.post.id}),
-                                               data=form_data,
-                                               follow=True)
+            data=form_data,
+            follow=True)
         redirect = reverse('posts:post_detail',
                            kwargs={'post_id': self.post.id})
         self.assertRedirects(response, redirect)
@@ -124,8 +124,8 @@ class CommentsTests(TestCase):
         }
         response = self.authorized_client.post(reverse(
             'posts:add_comment', kwargs={'post_id': self.post.id}),
-                                               data=form_data,
-                                               follow=True)
+            data=form_data,
+            follow=True)
         comment = Comment.objects.latest('created')
         self.assertEqual(Comment.objects.count(), comments_count + 1)
         self.assertTrue(
