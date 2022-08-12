@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% load thumbnail %}
+
+{% block title %}
+  Страница сообщества Yatube
+{% endblock %}
+
+{% block content %}
+  <div class="container py-5">
+    <h1> Последние обновления на сайте </h1>
+    {% include 'posts/includes/switcher.html' %}
+      {% for post in page_obj %}
+        {% include 'includes/post.html' %}
+        <a href="{% url 'posts:post_detail' post.pk %}">
+        Подробная информация </a><br>
+        {% if post.group %}
+          <a href="{% url 'posts:group_list' post.group.slug %}">Все записи группы</a><br>
+        {% endif %}
+        {% if not forloop.last %}
+          <hr>
+        {% endif %}
+      {% endfor %}
+      {% include 'posts/includes/paginator.html' %}
+  </div>
+{% endblock %}
