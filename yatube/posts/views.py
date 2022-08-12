@@ -80,21 +80,20 @@ def post_create(request):
 @login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    form = PostForm(
-        request.POST or None,
-        files=request.FILES or None,
-        instance=post
-    )
+    form = PostForm(request.POST or None,
+                    files=request.FILES or None,
+                    instance=post)
     if request.user != post.author:
         return redirect('posts:post_detail', post_id)
 
     if request.method != 'POST':
-        return render(request, 'posts/post_create.html',
-                      {'form': form, 'post': post})
+        return render(request, 'posts/post_create.html', {
+            'form': form,
+            'post': post
+        })
 
     if not form.is_valid():
-        return render(request, 'posts/post_create.html',
-                      {'form': form})
+        return render(request, 'posts/post_create.html', {'form': form})
 
     form.save()
     return redirect('posts:post_detail', post.pk)
@@ -105,8 +104,7 @@ def add_comment(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     form = CommentForm(request.POST or None)
     if not form.is_valid():
-        return render(request, 'posts/post_detail.html',
-                      {'form': form})
+        return render(request, 'posts/post_detail.html', {'form': form})
     comment = form.save(commit=False)
     comment.author = request.user
     comment.post = post
@@ -116,8 +114,7 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    posts_show = Post.objects.filter(
-        author__following__user=request.user)
+    posts_show = Post.objects.filter(author__following__user=request.user)
     page_obj = paginator(request, posts_show)
     context = {'page_obj': page_obj}
     return render(request, 'posts/follow.html', context)

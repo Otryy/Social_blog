@@ -11,6 +11,7 @@ User = get_user_model()
 
 
 class TemplateURLTests(TestCase):
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -64,6 +65,6 @@ class TemplateURLTests(TestCase):
 
     def test_create_comment_authorized(self):
         """Комментировать может только авторизованный пользователь"""
-        response = self.guest_client.get(reverse('posts:add_comment',
-                                              kwargs={'post_id': self.post.id}))
+        response = self.guest_client.get(
+            reverse('posts:add_comment', kwargs={'post_id': self.post.id}))
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
