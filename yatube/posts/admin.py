@@ -1,3 +1,4 @@
+from dataclasses import fields
 from django.contrib import admin
 
 from .models import Comment, Follow, Group, Post
@@ -17,22 +18,6 @@ class GroupAdmin(admin.ModelAdmin):
 
 class CommentAdmin(admin.TabularInline):
     model = Comment
-    list_display = (
-        'pk',
-        'text',
-        'post',
-        'author',
-        'created',
-    )
-    search_fields = (
-        'text',
-        'author',
-    )
-    list_filter = (
-        'text',
-        'author',
-    )
-    empty_value_display = '-пусто-'
 
 
 class PostAdmin(admin.ModelAdmin):

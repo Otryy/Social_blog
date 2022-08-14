@@ -30,7 +30,10 @@ class PaginatorViewsTest(TestCase):
             author=cls.user,
             group=cls.group,
             text='Тестовый пост' + str(x)
-        )) for x in range(1, 14)])
+        )) for x in range(
+            settings.PAGINATOR_FIRST_TEST_NUMBER,
+            settings.PAGINATOR_SECOND_TEST_NUMBER
+        )])
 
     def test_first_page_contains_ten_records(self):
         """Проверка: количество постов на первой странице равно 10."""
@@ -270,7 +273,7 @@ class FollowTests(TestCase):
         )
         response = self.client_auth_follower.get('/follow/')
         self.assertIn('page_obj', response.context)
-        self.assertEqual(response.context['post'].author, self.post.author)
+        self.assertIn(self.post, response.context['page_obj'])
 
     def test_subscription_feed_not_follow(self):
         """Запись не появляется в ленте тех, кто не подписан."""
@@ -280,7 +283,8 @@ class FollowTests(TestCase):
         )
         response = self.client_auth_following.get(
             reverse('posts:follow_index'))
-        self.assertEqual(response.context['post'].author, self.post.author)
+        self.assertNotIn(
+            response.context['post'].author, response.context['page_obj'])
 
     def test_not_follow_user_user(self):
         """Пользователь не может пописаться сам на себя."""

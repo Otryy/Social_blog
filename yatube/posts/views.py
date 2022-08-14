@@ -16,7 +16,7 @@ def paginator(request, post_list):
 
 @cache_page(20, key_prefix='index_page')
 def index(request):
-    post_list = Post.objects.all()
+    post_list = Post.objects.select_related('author', 'group')
     page_obj = paginator(request, post_list)
     context = {
         'page_obj': page_obj,
@@ -41,7 +41,7 @@ def profile(request, username):
     post_list = author.posts.select_related('author')
     page_obj = paginator(request, post_list)
     is_following = Follow.objects.filter(
-        user=request.user.pk,
+        user_id=request.user.id,
         author=author,
     ).exists()
     context = {
@@ -70,10 +70,10 @@ def post_detail(request, post_id):
 def post_create(request):
     form = PostForm(request.POST or None)
     if form.is_valid():
-        post = form.save(commit=False)
-        post.author = request.user
-        post.save()
-        return redirect('posts:profile', post.author)
+        form.instance.author = request.user
+        form.instance.post = form
+        form.save()
+        return redirect('posts:profile', form.instance.author)
     return render(request, 'posts/post_create.html', {'form': form})
 
 
