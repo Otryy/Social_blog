@@ -16,7 +16,7 @@ def paginator(request, post_list):
 
 @cache_page(20, key_prefix='index_page')
 def index(request):
-    post_list = Post.objects.select_related('author')
+    post_list = Post.objects.all()
     page_obj = paginator(request, post_list)
     context = {
         'page_obj': page_obj,
@@ -41,7 +41,7 @@ def profile(request, username):
     post_list = author.posts.select_related('author')
     page_obj = paginator(request, post_list)
     is_following = Follow.objects.filter(
-        user=request.user.id,
+        user=request.user.pk,
         author=author,
     ).exists()
     context = {
@@ -80,9 +80,10 @@ def post_create(request):
 @login_required
 def post_edit(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    form = PostForm(request.POST or None,
-                    files=request.FILES or None,
-                    instance=post)
+    form = PostForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=post)
     if request.user != post.author:
         return redirect('posts:post_detail', post_id)
 
@@ -105,10 +106,10 @@ def add_comment(request, post_id):
     form = CommentForm(request.POST or None)
     if not form.is_valid():
         return render(request, 'posts/post_detail.html', {'form': form})
-    comment = form.save(commit=False)
-    comment.author = request.user
-    comment.post = post
-    comment.save()
+
+    form.instance.author = request.user
+    form.instance.post = post
+    form.save()
     return redirect('posts:post_detail', post_id=post_id)
 
 

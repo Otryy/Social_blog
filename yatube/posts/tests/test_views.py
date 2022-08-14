@@ -1,7 +1,6 @@
 import shutil
 import tempfile
 
-from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -9,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
+from ..forms import PostForm
 from ..models import Follow, Group, Post
 
 User = get_user_model()
@@ -35,12 +35,14 @@ class PaginatorViewsTest(TestCase):
     def test_first_page_contains_ten_records(self):
         """Проверка: количество постов на первой странице равно 10."""
         response = self.client.get(reverse('posts:index') + '?page=1')
-        self.assertEqual(len(response.context['page_obj']), 10)
+        self.assertEqual(
+            len(response.context['page_obj']), settings.AMOUNT_POSTS)
 
     def test_second_page_contains_three_records(self):
         """Проверка: на второй странице должно быть три поста."""
         response = self.client.get(reverse('posts:index') + '?page=2')
-        self.assertEqual(len(response.context['page_obj']), 3)
+        self.assertEqual(
+            len(response.context['page_obj']), settings.SECOND_PAGE_POSTS)
 
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
@@ -160,14 +162,8 @@ class PostPagesTests(TestCase):
     def test_post_create_show_correct_context(self):
         """Шаблон post_create сформирован с правильным контекстом."""
         response = self.authorized_client.get(reverse('posts:post_create'))
-        form_fields = {
-            'text': forms.fields.CharField,
-            'group': forms.models.ModelChoiceField,
-        }
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                form_field = response.context.get('form').fields.get(value)
-                self.assertIsInstance(form_field, expected)
+        self.assertIn('form', response.context)
+        self.assertIsInstance(response.context['form'], PostForm)
 
     def test_create_post_in_index(self):
         """Проверяем, что созаднный пост, есть на index"""
@@ -194,7 +190,7 @@ class PostPagesTests(TestCase):
 
 
 class CacheTests(TestCase):
-    @classmethod
+    @ classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.user = User.objects.create_user(username='auth')
@@ -220,7 +216,7 @@ class CacheTests(TestCase):
 
 
 class FollowTests(TestCase):
-    @classmethod
+    @ classmethod
     def setUpTestData(cls):
         super().setUpTestData()
         cls.user = User.objects.create_user(username='auth')
@@ -246,9 +242,10 @@ class FollowTests(TestCase):
         self.client_auth_follower.get(reverse(
             'posts:profile_follow',
             kwargs={'username': self.user_following.username}))
-        follow_exist = Follow.objects.filter(user=self.user_follower,
-                                             author=self.user_following
-                                             ).exists()
+        follow_exist = Follow.objects.filter(
+            user=self.user_follower,
+            author=self.user_following,
+        ).exists()
         self.assertTrue(follow_exist)
 
     def test_unfollow(self):
@@ -259,35 +256,39 @@ class FollowTests(TestCase):
         self.client_auth_follower.get(reverse(
             'posts:profile_unfollow',
             kwargs={'username': self.user_following.username}))
-        follow_exist = Follow.objects.filter(user=self.user_following,
-                                             author=self.user_follower
-                                             ).exists()
+        follow_exist = Follow.objects.filter(
+            user=self.user_following,
+            author=self.user_follower,
+        ).exists()
         self.assertFalse(follow_exist)
 
     def test_subscription_feed(self):
         """Запись появляется в ленте подписчиков."""
-        Follow.objects.create(user=self.user_follower,
-                              author=self.user_following)
+        Follow.objects.create(
+            user=self.user_follower,
+            author=self.user_following,
+        )
         response = self.client_auth_follower.get('/follow/')
         self.assertIn('page_obj', response.context)
-        post_text = response.context["page_obj"][0].text
-        self.assertEqual(post_text, self.post.text)
+        self.assertEqual(response.context['post'].author, self.post.author)
 
     def test_subscription_feed_not_follow(self):
         """Запись не появляется в ленте тех, кто не подписан."""
-        Follow.objects.create(user=self.user_following,
-                              author=self.user_following)
+        Follow.objects.create(
+            user=self.user_following,
+            author=self.user_following,
+        )
         response = self.client_auth_following.get(
             reverse('posts:follow_index'))
-        post_text = response.context["page_obj"][0].text
-        self.assertIn('page_obj', response.context)
-        self.assertEqual(post_text, self.post.text)
+        self.assertEqual(response.context['post'].author, self.post.author)
 
     def test_not_follow_user_user(self):
         """Пользователь не может пописаться сам на себя."""
         self.authorized_client.get(reverse(
             'posts:profile_follow',
             kwargs={'username': self.user.username}))
-        follow_exist = Follow.objects.filter(user=self.user,
-                                             author=self.user).exists()
+        follow_exist = Follow.objects.filter(
+            user=self.user,
+            author=self.user,
+        ).exists()
         self.assertFalse(follow_exist)

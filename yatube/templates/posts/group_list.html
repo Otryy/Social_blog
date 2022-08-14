@@ -7,19 +7,16 @@
 {% endblock %}
 {% block header %}{{ group }}{% endblock %}
 {% block content %}
-  <div class="container py-5">
-    <h3>
-    <p>
-    {{ group.description }}
-    </p>
-    </h3>
-    {% for post in page_obj %}
-      {% include 'includes/post.html' %}
-      <a href="{% url 'posts:post_detail' post.pk %}">Пдробная информация </a><br>
-      <a href="{% url 'posts:index' %}"> На главную</a>
-      <hr>
-    {% endfor %}
-    {% include 'posts/includes/paginator.html' %}
-    
-  </div>
+  <h3>
+  <p>
+  {{ group.description }}
+  </p>
+  </h3>
+  {% for post in page_obj %}
+    {% include 'includes/post.html' %}
+    <a href="{% url 'posts:post_detail' post.pk %}">Пдробная информация </a><br>
+    <a href="{% url 'posts:index' %}"> На главную</a>
+    <hr>
+  {% endfor %}
+  {% include 'posts/includes/paginator.html' %}
 {% endblock %}
