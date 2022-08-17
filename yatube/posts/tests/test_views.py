@@ -130,7 +130,7 @@ class PostPagesTests(TestCase):
 
     def test_profile_show_correct_context(self):
         """Шаблон profile сформирован с правильным контекстом."""
-        response = self.client.get(
+        response = self.authorized_client.get(
             reverse('posts:profile', kwargs={
                     'username': self.user.username}),
         )

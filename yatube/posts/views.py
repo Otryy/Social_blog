@@ -41,7 +41,7 @@ def profile(request, username):
     post_list = author.posts.select_related('author')
     page_obj = paginator(request, post_list)
     is_following = Follow.objects.filter(
-        user_id=request.user.id,
+        user=request.user,
         author=author,
     ).exists()
     context = {
