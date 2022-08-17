@@ -31,8 +31,8 @@ class PaginatorViewsTest(TestCase):
             group=cls.group,
             text='Тестовый пост' + str(x)
         )) for x in range(
-            settings.PAGINATOR_FIRST_TEST_NUMBER,
-            settings.PAGINATOR_SECOND_TEST_NUMBER
+            settings.AMOUNT_POSTS // 10,
+            settings.AMOUNT_POSTS + settings.AMOUNT_POSTS // 2
         )])
 
     def test_first_page_contains_ten_records(self):

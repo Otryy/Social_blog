@@ -90,9 +90,7 @@ LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'Asia/Tomsk'
 
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 STATIC_URL = '/static/'
@@ -100,12 +98,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 AMOUNT_POSTS: int = 10
-
-SECOND_PAGE_POSTS: int = 3
-
-PAGINATOR_FIRST_TEST_NUMBER: int = 1
-
-PAGINATOR_SECOND_TEST_NUMBER: int = 14
+SECOND_PAGE_POSTS: int = 4
 
 LOGIN_URL = 'users:login'
 
