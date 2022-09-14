@@ -1,3 +1,7 @@
-# hw05_final
+# Social blog
 
-[![CI](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml/badge.svg?branch=master)](https://github.com/yandex-praktikum/hw05_final/actions/workflows/python-app.yml)
+Сайт написан на Django, в качестве БД я использовал SQLite. На сайте есть возможность регистрации, а для легкости использования - в шапке присутствует навигация.
+
+Так используюя библиотеку Pillow, через библиотеку sorl-thumbnail я добавил возможность прикрепления изображений.
+
+Так же, все посты можно комментировать, а на тех пользователей, что вам понравились - можно подписаться.
